@@ -24,6 +24,7 @@
 <nav class="side-nav">
 <a href="#" id="navDash" class="active">📊 <span>Dashboard</span></a>
 <a href="#" id="navNew">➕ <span>New ticket</span></a>
+<a href="#" id="navKb">📚 <span>Knowledge base</span></a>
 </nav>
 <div class="side-foot">
 <div class="store-card"><b>💾 Stored in this browser</b><p>Preview only. Keep a backup now and then.</p><button class="btn" id="backupBtn">⬇ Backup now</button></div>
@@ -57,13 +58,18 @@
 <div class="card mini"><p class="kicker">IN PROGRESS</p><b id="sProg">0</b><p class="muted">being worked on</p></div>
 <div class="card mini"><p class="kicker">RESOLVED</p><b id="sRes">0</b><p class="muted">done this workspace</p></div>
 <div class="card mini"><p class="kicker">AVG RESOLVE</p><b id="sAvg">—</b><p class="muted">hours to close</p></div>
+<div class="card mini"><p class="kicker">CSAT ⭐</p><b id="sCsat">—</b><p class="muted">avg rating</p></div>
+<div class="card mini"><p class="kicker">SLA MET</p><b id="sSla">—</b><p class="muted">resolved on time</p></div>
 </div>
 </div>
 <div class="cols2">
 <div class="card"><h3>Tickets by priority</h3><canvas id="chPri" height="180"></canvas></div>
 <div class="card"><h3>Tickets</h3>
 <div class="filters"><select id="fS"><option value="">All statuses</option><option>Open</option><option>In Progress</option><option>On Hold</option><option>Resolved</option><option>Closed</option></select>
-<select id="fP"><option value="">All priorities</option><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select></div>
+<select id="fP"><option value="">All priorities</option><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select>
+<select id="fT"><option value="">All types</option><option>Incident</option><option>Service Request</option><option>Access</option><option>Onboarding</option></select>
+<label class="muted" style="display:flex;gap:4px;align-items:center;margin:0"><input type="checkbox" id="fOver" style="width:auto"> Overdue</label>
+<label class="muted" style="display:flex;gap:4px;align-items:center;margin:0"><input type="checkbox" id="fUn" style="width:auto"> Unassigned</label></div>
 <div class="table-wrap"><table><thead><tr><th>ID</th><th>SUBJECT</th><th>CAT</th><th>PRI</th><th>STATUS</th><th>SLA</th><th>UPDATED</th></tr></thead>
 <tbody id="rows"></tbody></table></div></div>
 </div>
@@ -72,7 +78,12 @@
 <!-- NEW -->
 <section id="v-new" class="view"><div class="page-head"><div><h1>New ticket</h1><p class="muted">Log it once — IT gets an email instantly.</p></div></div>
 <div class="card"><label>Subject*<input id="nSub" placeholder="e.g. Printer not working 3F"></label>
+<div id="kbHints"></div>
 <label>Description*<textarea id="nDesc" rows="4" placeholder="What happened, asset tag, error…"></textarea></label>
+<div class="grid2">
+<label>Request type<select id="nType"><option>Incident</option><option>Service Request</option><option>Access</option><option>Onboarding</option></select></label>
+<label>Tags (comma separated)<input id="nTags" placeholder="e.g. printer, 3f"></label>
+</div>
 <div class="grid2">
 <label>Category<select id="nCat"><option>Hardware</option><option>Software</option><option>Network</option><option>Access</option><option>Security</option><option>Other</option></select></label>
 <label>Priority<select id="nPri"><option>Low</option><option selected>Medium</option><option>High</option><option>Critical</option></select></label>
@@ -85,15 +96,27 @@
 
 <!-- DETAIL -->
 <section id="v-detail" class="view"><div class="card"><a href="#" id="backDash">← Back to dashboard</a>
-<h2 id="dTitle"></h2><p id="dMeta" class="muted"></p><p id="dDesc"></p><p id="dFile"></p>
+<h2 id="dTitle"></h2><p id="dMeta" class="muted"></p><p id="dSla"></p><p id="dDesc"></p><p id="dFile"></p>
+<div id="dCsat"></div>
 <div id="staffBox"><h3>IT controls</h3>
 <div class="grid2"><label>Status<select id="dStatus"><option>Open</option><option>In Progress</option><option>On Hold</option><option>Resolved</option><option>Closed</option></select></label>
 <label>Assign<input id="dAssign" placeholder="e.g. Juan — IT"></label></div>
 <button class="btn primary" id="dUpdate">Update (sends email ✉️)</button></div>
 </div>
 <div class="card"><h3>Conversation</h3><div id="dComments"></div>
+<label id="cannedWrap">Canned reply<select id="dCanned"><option value="">— insert template —</option></select></label>
 <label>Reply<textarea id="dMsg" rows="3"></textarea></label>
-<button class="btn primary" id="dReply">Reply (sends email ✉️)</button></div></section>
+<label id="visWrap" class="muted" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="dVis" style="width:auto"> 🔒 Internal note (staff only, no email)</label>
+<button class="btn primary" id="dReply">Reply (sends email ✉️)</button></div>
+<div class="card" id="logCard"><h3>⏱️ Work log <span class="muted" id="dWorkTotal"></span></h3><div id="dLogs"></div>
+<div class="grid2"><label>Minutes<input id="dMins" type="number" min="1" max="1440"></label><label>Note<input id="dNote" placeholder="What was done"></label></div>
+<button class="btn primary" id="dLog">Log time</button></div>
+<div class="card" id="rateCard"><h3>How did we do? ⭐</h3><p class="muted">Rate this resolution (requester).</p>
+<div id="dRate" style="display:flex;gap:6px"></div></div></section>
+
+<!-- KB -->
+<section id="v-kb" class="view"><div class="page-head"><div><h1>Knowledge base</h1><p class="muted">Self-service solutions — deflect tickets before they start.</p></div></div>
+<div class="card"><input id="kbQ" placeholder="Search solutions…" style="margin-bottom:10px"><div id="kbList"></div></div></section>
 </main>
 </div>
 </div>
