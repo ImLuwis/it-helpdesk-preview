@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IT Helpdesk — UI Preview</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<header class="topbar">
+<strong>IT Helpdesk <span class="muted">· Vercel UI preview</span></strong>
+<nav style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+<span class="muted" id="who"></span>
+<button class="btn" id="themeBtn">🌙/☀️</button>
+<button class="btn" id="logoutBtn">Logout</button>
+</nav>
+</header>
+<main class="container">
+
+<!-- LOGIN -->
+<section id="v-login" class="view"><div class="card" style="max-width:440px;margin:24px auto">
+<h2>Sign in (demo)</h2>
+<p class="muted">Static preview — accounts stored in browser only. PHP/MySQL version is production backend.</p>
+<label>Role<select id="role"><option value="employee">Employee</option><option value="it_staff">IT Staff</option><option value="admin">Admin</option></select></label>
+<button class="btn primary" id="loginBtn" style="width:100%">Enter demo</button>
+<p class="muted">No password needed for UI test.</p>
+</div></section>
+
+<!-- DASH -->
+<section id="v-dash" class="view">
+<div class="grid4">
+<div class="stat"><span>Open</span><b id="sOpen">0</b></div>
+<div class="stat"><span>In Progress</span><b id="sProg">0</b></div>
+<div class="stat"><span>Resolved</span><b id="sRes">0</b></div>
+<div class="stat"><span>Avg hrs</span><b id="sAvg">—</b></div>
+</div>
+<div class="grid2">
+<div class="card"><h3>By category</h3><canvas id="chCat" height="160"></canvas></div>
+<div class="card"><h3>By priority</h3><canvas id="chPri" height="160"></canvas></div>
+</div>
+<div class="card"><h3>Tickets</h3>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+<input id="q" placeholder="Search subject / ID" style="flex:2;min-width:160px">
+<select id="fS"><option value="">All statuses</option><option>Open</option><option>In Progress</option><option>On Hold</option><option>Resolved</option><option>Closed</option></select>
+<select id="fP"><option value="">All priorities</option><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select>
+<button class="btn primary" id="newBtn">+ New</button>
+<button class="btn" id="expBtn">Export</button>
+<label class="btn">Import<input type="file" id="impFile" accept=".csv" hidden></label>
+</div>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>Subject</th><th>Cat</th><th>Pri</th><th>Status</th><th>Updated</th></tr></thead>
+<tbody id="rows"></tbody></table></div></div>
+</section>
+
+<!-- NEW -->
+<section id="v-new" class="view"><div class="card"><h2>New IT ticket</h2>
+<label>Subject*<input id="nSub" placeholder="e.g. Printer not working 3F"></label>
+<label>Description*<textarea id="nDesc" rows="4" placeholder="What happened, asset tag, error…"></textarea></label>
+<div class="grid2">
+<label>Category<select id="nCat"><option>Hardware</option><option>Software</option><option>Network</option><option>Access</option><option>Security</option><option>Other</option></select></label>
+<label>Priority<select id="nPri"><option>Low</option><option selected>Medium</option><option>High</option><option>Critical</option></select></label>
+</div>
+<div class="grid2"><label>Asset tag<input id="nAsset" placeholder="PC-042"></label><label>Location<input id="nLoc" placeholder="Branch / Floor"></label></div>
+<label>Attach file<input type="file" id="nFile"></label>
+<p class="muted" id="fileInfo"></p>
+<div style="display:flex;gap:8px"><button class="btn primary" id="createBtn">Submit (sends email ✉️)</button><button class="btn" id="backBtn">Cancel</button></div>
+</div></section>
+
+<!-- DETAIL -->
+<section id="v-detail" class="view"><div class="card"><a href="#" id="backDash">← Back</a>
+<h2 id="dTitle"></h2><p id="dMeta" class="muted"></p><p id="dDesc"></p><p id="dFile"></p>
+<div id="staffBox"><h3>IT controls</h3>
+<div class="grid2"><label>Status<select id="dStatus"><option>Open</option><option>In Progress</option><option>On Hold</option><option>Resolved</option><option>Closed</option></select></label>
+<label>Assign<input id="dAssign" placeholder="e.g. Juan — IT"></label></div>
+<button class="btn primary" id="dUpdate">Update (sends email ✉️)</button></div>
+</div>
+<div class="card"><h3>Conversation</h3><div id="dComments"></div>
+<label>Reply<textarea id="dMsg" rows="3"></textarea></label>
+<button class="btn primary" id="dReply">Reply (sends email ✉️)</button></div></section>
+
+<p class="muted">Preview backend: <code>localStorage</code>. Production: PHP <code>it-helpdesk/</code> + MySQL. Email/file actions show toast only.</p>
+</main>
+<div class="toast" id="toast" style="display:none"></div>
+<script src="app.js"></script>
+</body>
+</html>
