@@ -17,7 +17,7 @@ function show(v){document.querySelectorAll('.view').forEach(s=>s.classList.remov
 function render(){
   const d=store.get(),q=($('q').value||'').toLowerCase(),fs=$('fS').value,fp=$('fP').value;
   const f=d.filter(t=>(!fs||t.st===fs)&&(!fp||t.pri===fp)&&(!q||(t.sub+t.no).toLowerCase().includes(q)));
-  $('rows').innerHTML=f.map(t=>`<tr><td><a href="#" data-id="${t.id}">${t.no}</a></td><td>${esc(t.sub)}</td><td>${t.cat}</td><td><span class="pill ${t.pri}">${t.pri}</span></td><td>${t.st}</td><td>${t.at}</td></tr>`).join('')||'<tr><td colspan=6>No tickets</td></tr>';
+  $('rows').innerHTML=f.map(t=>{const od=(t.pri==='Critical'||t.pri==='High')&&!['Resolved','Closed'].includes(t.st);return `<tr><td><a href="#" data-id="${t.id}">${t.no}</a></td><td>${esc(t.sub)}</td><td>${t.cat}</td><td><span class="pill ${t.pri}">${t.pri}</span></td><td>${t.st}</td><td>${od?'🔴 overdue':'🟢 on-track'}</td><td>${t.at}</td></tr>`}).join('')||'<tr><td colspan=7>No tickets</td></tr>';
   $('rows').querySelectorAll('a').forEach(a=>a.onclick=e=>{e.preventDefault();open(+a.dataset.id)});
   $('sOpen').textContent=d.filter(t=>t.st==='Open').length;
   $('sProg').textContent=d.filter(t=>t.st==='In Progress').length;
